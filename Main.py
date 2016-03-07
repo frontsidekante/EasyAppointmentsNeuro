@@ -2,7 +2,18 @@ import re
 import pycurl
 import cStringIO
 import urllib
+import smtplib
+import getpass
+#import traceback
 import requests
+
+key = 'key-a2ef5c3f32c5ad5d74d150b8f63c7566'
+sandbox = 'postmaster@sandboxa394801553fc40438ad32d792bd8068c.mailgun.org'
+recipient = raw_input('E-Mail: \n')
+
+### Doesn't work in Pycharm-Terminal
+#pw = getpass.getpass('Passord: \n')
+#print 'Thank you'
 
 ###creates new Stringbuffer, cStringIO faster than StringIO
 buff = cStringIO.StringIO()
@@ -44,7 +55,9 @@ c.setopt(c.WRITEFUNCTION, newBuff.write)
 c.perform()
 print newBuff.getvalue()
 
+#TODO: parse date
 responseCal = newBuff.getvalue()
+freedate = 'CS6' in responseCal
 print len(responseCal.split('\n'))
 
 #print type(responseCal)
@@ -60,6 +73,20 @@ print len(responseCal.split('\n'))
 
 #print cs6
 #print '----------POST ' + ''.join(post)
+
+#TODO: send mail
+print freedate
+if freedate:
+        request_url = 'https://api.mailgun.net/v3/sandboxa394801553fc40438ad32d792bd8068c.mailgun.org/messages'.format(sandbox)
+        request = requests.post(request_url, auth=('api', key), data={
+        'from': 'postmaster@sandboxa394801553fc40438ad32d792bd8068c.mailgun.org',
+        'to': recipient,
+        'subject': 'Free appointment! :)',
+        'text': 'Go, get it!'
+})
+
+print 'Status: {0}'.format(request.status_code)
+print 'Body:   {0}'.format(request.text)
 
 ###closes buffer
 newBuff.close()
