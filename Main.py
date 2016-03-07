@@ -1,3 +1,4 @@
+# coding=utf-8
 import re
 import pycurl
 import cStringIO
@@ -7,16 +8,23 @@ import smtplib
 import getpass
 #import traceback
 import requests
+import os
 
+### load email relevant data input
 Config = ConfigParser.ConfigParser()
-Config.read('config.ini')
+print '_____________'
+print __file__
+print os.path.dirname(__file__)
+print os.path.abspath(os.path.dirname(__file__))
+Config.read(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'config.ini'))
+key = Config.get('personalData', 'key')
+sender = Config.get('personalData', 'sender')
+receipient = Config.get('personalData', 'receipient')
 
-key = Config.get('personal data', 'key')
-sender = Config.get('personal data', 'sender')
-receipient = Config.get('personal data', 'receipient')
+print key, sender, receipient
 
 ### Doesn't work in Pycharm-Terminal
-#pw = getpass.getpass('Passord: \n')
+#pw = getpass.getpass('Password: \n')
 #print 'Thank you'
 
 ###creates new Stringbuffer, cStringIO faster than StringIO
@@ -82,10 +90,10 @@ print len(responseCal.split('\n'))
 print freedate
 
 if freedate:
-        request_url = 'https://api.mailgun.net/v3/sandboxa394801553fc40438ad32d792bd8068c.mailgun.org/messages'.format(sandbox)
+        request_url = 'https://api.mailgun.net/v3/sandboxa394801553fc40438ad32d792bd8068c.mailgun.org/messages'.format(sender)
         request = requests.post(request_url, auth=('api', key), data={
-        'from': 'postmaster@sandboxa394801553fc40438ad32d792bd8068c.mailgun.org',
-        'to': 'v.koehring@gmail.com',
+        'from': sender,
+        'to': receipient,
         'subject': 'Free appointment! :)',
         'text': 'Go, get it!'
         })
