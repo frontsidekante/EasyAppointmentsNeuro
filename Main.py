@@ -2,14 +2,18 @@ import re
 import pycurl
 import cStringIO
 import urllib
+import ConfigParser
 import smtplib
 import getpass
 #import traceback
 import requests
 
-key = 'key-a2ef5c3f32c5ad5d74d150b8f63c7566'
-sandbox = 'postmaster@sandboxa394801553fc40438ad32d792bd8068c.mailgun.org'
-recipient = raw_input('E-Mail: \n')
+Config = ConfigParser.ConfigParser()
+Config.read('config.ini')
+
+key = Config.get('personal data', 'key')
+sender = Config.get('personal data', 'sender')
+receipient = Config.get('personal data', 'receipient')
 
 ### Doesn't work in Pycharm-Terminal
 #pw = getpass.getpass('Passord: \n')
@@ -76,17 +80,17 @@ print len(responseCal.split('\n'))
 
 #TODO: send mail
 print freedate
+
 if freedate:
         request_url = 'https://api.mailgun.net/v3/sandboxa394801553fc40438ad32d792bd8068c.mailgun.org/messages'.format(sandbox)
         request = requests.post(request_url, auth=('api', key), data={
         'from': 'postmaster@sandboxa394801553fc40438ad32d792bd8068c.mailgun.org',
-        'to': recipient,
+        'to': 'v.koehring@gmail.com',
         'subject': 'Free appointment! :)',
         'text': 'Go, get it!'
-})
-
-print 'Status: {0}'.format(request.status_code)
-print 'Body:   {0}'.format(request.text)
+        })
+        print 'Status: {0}'.format(request.status_code)
+        print 'Body:   {0}'.format(request.text)
 
 ###closes buffer
 newBuff.close()
