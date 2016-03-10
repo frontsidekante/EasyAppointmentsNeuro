@@ -1,31 +1,20 @@
 # coding=utf-8
-import re
 import pycurl
 import cStringIO
 import urllib
 import ConfigParser
-import smtplib
-import getpass
-#import traceback
+import datetime
 import requests
 import os
 
 ### load email relevant data input
 Config = ConfigParser.ConfigParser()
-print '_____________'
-print __file__
-print os.path.dirname(__file__)
-print os.path.abspath(os.path.dirname(__file__))
 Config.read(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'config.ini'))
 key = Config.get('personalData', 'key')
 sender = Config.get('personalData', 'sender')
 receipient = Config.get('personalData', 'receipient')
 
-print key, sender, receipient
-
-### Doesn't work in Pycharm-Terminal
-#pw = getpass.getpass('Password: \n')
-#print 'Thank you'
+#print key, sender, receipient
 
 ###creates new Stringbuffer, cStringIO faster than StringIO
 buff = cStringIO.StringIO()
@@ -48,12 +37,12 @@ response = buff.getvalue()
 front = "tcraffauf.dll/"
 back = "/$/"
 sessionID = response[(response.index(front)+len(front)):response.index(back)]
-print "SessionID = " + sessionID
+# print "SessionID = " + sessionID
 
 newURL = "https://tc-app.de/raffauf/tcraffauf.dll/" + sessionID + "/$/"
 c.setopt(c.URL, newURL)
 
-#TODO: send new request with sessionID + POSTparameters
+### send new request with sessionID + POSTparameters
 newBuff = cStringIO.StringIO()
 data = (('VSTATUS', '0'), ('ARZTWAHL', '0'), ('PATIENTSTATUS', '0'), ('IW_Action', 'IWGRADBUTTON1'),
         ('IW_ActionParam', ''), ('IW_FormName', 'IWForm1'), ('IW_FormClass', 'TIWForm1'), ('IW_LocationHash', ''),
@@ -65,30 +54,24 @@ post = urllib.urlencode(data)
 c.setopt(c.POSTFIELDS, post)
 c.setopt(c.WRITEFUNCTION, newBuff.write)
 c.perform()
-print newBuff.getvalue()
+#print newBuff.getvalue()
+
+#TODO: send new request for second month
 
 #TODO: parse date
 responseCal = newBuff.getvalue()
 freedate = 'CS6' in responseCal
-print len(responseCal.split('\n'))
-
+#print len(responseCal.split('\n'))
 #print type(responseCal)
-
 #print re.search('CS5', responseCal)
-
 #for free in re.finditer('CS5', responseCal):
 #        print free.start(), free.end(), free.group()
-
 #front1 = "SubmitClickConfirm('KALENDER'"
 #back1 = "</a></td><td class=\"KALENDER_CS5\">"
 #cs6 = response[(responseCal.index(front1)+len(front1)):responseCal.index(back1)]
-
 #print cs6
 #print '----------POST ' + ''.join(post)
-
-#TODO: send mail
 print freedate
-
 if freedate:
         request_url = 'https://api.mailgun.net/v3/sandboxa394801553fc40438ad32d792bd8068c.mailgun.org/messages'.format(sender)
         request = requests.post(request_url, auth=('api', key), data={
@@ -99,6 +82,9 @@ if freedate:
         })
         print 'Status: {0}'.format(request.status_code)
         print 'Body:   {0}'.format(request.text)
+
+now = datetime.datetime.now()
+print 'TIME: ', str(now)
 
 ###closes buffer
 newBuff.close()
